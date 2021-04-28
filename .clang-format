@@ -1,0 +1,98 @@
+---
+Language: Cpp
+Standard: Latest
+UseCRLF: false
+ColumnLimit: 0
+UseTab: Always
+# Indention {{{
+TabWidth: 3
+IndentWidth: 3
+ConstructorInitializerIndentWidth: 3
+ContinuationIndentWidth: 3
+AccessModifierOffset: -3
+NamespaceIndentation: All
+IndentGotoLabels: true
+IndentPPDirectives: BeforeHash
+IndentExternBlock: AfterExternBlock
+# }}}
+# Align {{{
+AlignAfterOpenBracket: true
+AlignConsecutiveAssignments: true
+AlignConsecutiveBitFields: true
+AlignConsecutiveMacros: true
+AlignConsecutiveDeclarations: false
+AlignEscapedNewlines: Right
+AlignOperands: Align
+AlignTrailingComments: true
+# }}}
+# Allow {{{
+AllowShortBlocksOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+AllowShortLambdasOnASingleLine: All
+# }}}
+# Breaking {{{
+AlwaysBreakAfterReturnType: None
+AlwaysBreakTemplateDeclarations: MultiLine
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel:  false
+  AfterClass:      false
+  AfterControlStatement: Never
+  AfterEnum:       false
+  AfterFunction:   false
+  AfterNamespace:  false
+  AfterObjCDeclaration: false
+  AfterStruct:     false
+  AfterUnion:      false
+  AfterExternBlock: false
+  BeforeCatch:     true
+  BeforeElse:      true
+  BeforeLambdaBody: false
+  BeforeWhile:     false
+  IndentBraces:    false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+BreakConstructorInitializersBeforeComma: false
+BreakConstructorInitializers: AfterColon
+# }}}
+# Space {{{
+PointerAlignment: Left
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: Never
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: false
+SpaceInEmptyParentheses: false
+SpacesInAngles:  false
+SpacesInConditionalStatement: false
+SpacesInContainerLiterals: false
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpaceBeforeSquareBrackets: false
+# }}}
+CompactNamespaces: true
+FixNamespaceComments: false
+Cpp11BracedListStyle: true
+SortUsingDeclarations: true
+SortIncludes: true
+IncludeBlocks:   Regroup
+IncludeCategories:
+  - Regex: '<([A-Za-z0-9\/-_])+>'
+    Priority: 1
+  - Regex: '<([A-Za-z0-9.\/-_])+>'
+    Priority: 2
+  - Regex: '"([A-Za-z0-9.\/-_])+"'
+    Priority: 3
+MaxEmptyLinesToKeep: 1
+...
+

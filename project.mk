@@ -1,0 +1,2 @@
+# Project definitions
+CC = g++
