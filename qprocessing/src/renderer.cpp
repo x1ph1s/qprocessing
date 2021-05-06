@@ -2,13 +2,10 @@
 
 #include <array>
 #include <cstring>
-#include <iostream>
 
 #include "gl.h"
-#include "index_buffer.h"
 #include "shader.h"
 #include "shadercode.h"
-#include "vertex_buffer.h"
 
 constexpr size_t maxVertices = 10000;
 constexpr size_t maxIndices  = size_t(maxVertices * 1.5);
@@ -25,15 +22,9 @@ namespace {
 	uint32_t currentIndex = 0;
 	uint32_t numIndices	 = 0;
 
-	IndexBuffer* indexBuffer;
-	VertexBuffer* vertexBuffer;
-
-	void clearData() {
-		currentIndex = 0;
-		numIndices	 = 0;
-		indicesPtr	 = indices.data();
-		verticesPtr	 = vertices.data();
-	}
+	unsigned ibo;
+	unsigned vbo;
+	unsigned vao;
 
 #ifdef DEBUG
 	void _glMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
@@ -51,8 +42,22 @@ namespace qprocessing::core {
 		}
 #endif
 
-		indexBuffer	 = new IndexBuffer{maxIndices * sizeof(uint32_t)};
-		vertexBuffer = new VertexBuffer{maxVertices * sizeof(Vertex)};
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		glGenBuffers(1, &ibo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, maxIndices * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+		
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, maxVertices * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
 
 #ifdef DEBUG
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -68,10 +73,13 @@ namespace qprocessing::core {
 		Shader shader{vertexShaderSourceString, fragmantShaderSourceString};
 		shader.bind();
 	}
+
 	void renderer::shutdown() {
-		delete indexBuffer;
-		delete vertexBuffer;
+		glDeleteVertexArrays(1, &vao);
+		glDeleteBuffers(1, &vbo);
+		glDeleteBuffers(1, &ibo);
 	}
+
 	void renderer::add(const Vertex* vertices_, size_t vertexCount, const uint32_t* indices_, uint32_t indexCount) {
 		numIndices += indexCount;
 		if(numIndices > maxIndices || (currentIndex + vertexCount) > maxVertices) {
@@ -92,10 +100,14 @@ namespace qprocessing::core {
 		currentIndex += vertexCount;
 	}
 	void renderer::flush() {
-		vertexBuffer->setData(vertices.data(), vertices.size());
-		indexBuffer->setData(indices.data(), numIndices);
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, numIndices * sizeof(uint32_t), indices.data());
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), vertices.data());
 		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, nullptr);
-		clearData();
+
+		currentIndex = 0;
+		numIndices	 = 0;
+		indicesPtr	 = indices.data();
+		verticesPtr	 = vertices.data();
 	}
 
 	void renderer::clear() {

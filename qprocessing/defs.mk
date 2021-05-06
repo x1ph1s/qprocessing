@@ -8,6 +8,6 @@ SRCFOLDER = src
 LIBFOLDER = build/lib
 
 OBJFOLDER = build/obj
-SRC := qprocessing.cpp color.cpp renderer.cpp shader.cpp index_buffer.cpp vertex_buffer.cpp
+SRC := qprocessing.cpp color.cpp renderer.cpp shader.cpp
 
 LIB = libqprocessing.a
