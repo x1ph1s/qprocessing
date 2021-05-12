@@ -1,3 +1,3 @@
-SUBFOLDERS = qprocessing sandbox
+SUBFOLDERS = libqprocessing sandbox
 
 include .make/sub.mk

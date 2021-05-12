@@ -1,17 +1,17 @@
-#include "renderer.h"
+#include "renderer.hpp"
 
 #include <array>
 #include <cstring>
 
-#include "gl.h"
-#include "shader.h"
-#include "shadercode.h"
+#include "gl.hpp"
+#include "shader.hpp"
+#include "shadercode.hpp"
 
 constexpr size_t maxVertices = 10000;
 constexpr size_t maxIndices  = size_t(maxVertices * 1.5);
 
 namespace {
-	using namespace qprocessing::core;
+	using namespace qprocessing::renderer;
 
 	std::array<Vertex, maxVertices> vertices;
 	Vertex* verticesPtr = vertices.data();
@@ -25,6 +25,7 @@ namespace {
 	unsigned ibo;
 	unsigned vbo;
 	unsigned vao;
+	unsigned shader;
 
 #ifdef DEBUG
 	void _glMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
@@ -32,9 +33,10 @@ namespace {
 	}
 #endif
 }
-namespace qprocessing::core {
+namespace qprocessing {
 	void renderer::init(void* window) {
 		GLenum err = glewInit();
+
 #ifdef DEBUG
 		if(err != GLEW_OK) {
 			std::cerr << "Error with glew: " << glewGetErrorString(err) << "\n";
@@ -48,7 +50,7 @@ namespace qprocessing::core {
 		glGenBuffers(1, &ibo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, maxIndices * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
-		
+
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glBufferData(GL_ARRAY_BUFFER, maxVertices * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
@@ -70,14 +72,15 @@ namespace qprocessing::core {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		Shader shader{vertexShaderSourceString, fragmantShaderSourceString};
-		shader.bind();
+		shader = createShader(vertexShaderSource, fragmentShaderSource);
+		glUseProgram(shader);
 	}
 
 	void renderer::shutdown() {
 		glDeleteVertexArrays(1, &vao);
 		glDeleteBuffers(1, &vbo);
 		glDeleteBuffers(1, &ibo);
+		glDeleteProgram(shader);
 	}
 
 	void renderer::add(const Vertex* vertices_, size_t vertexCount, const uint32_t* indices_, uint32_t indexCount) {

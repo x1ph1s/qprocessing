@@ -10,7 +10,7 @@ void draw() {
 	background(0, 0, 0);
 	color c = color(77, 102, 204, 255);
 	fill(c);
-	constexpr size_t sqquads = 1000;
+	constexpr size_t sqquads = 100;
 	constexpr float spacing	 = 2.0f / sqquads;
 	for(float x = -1; x < 1; x += spacing) {
 		for(float y = -1; y < 1; y += spacing) {

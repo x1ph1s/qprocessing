@@ -1,6 +1,6 @@
 include ../project.mk
 
-CFLAGS = -std=c++2a -I includes
+CFLAGS = -std=c++2a -I ../libqprocessing/include
 DEBUGFLAGS = -g -D DEBUG
 RELEASECFLAGS = -O3 -D RELEASE
 

@@ -1,8 +1,6 @@
 #pragma once
 
 #include <cinttypes>
-#include <functional>
-#include <string>
 
 void setup();
 void draw();
@@ -170,13 +168,4 @@ namespace qprocessing {
 	void square(float x, float y, float e);
 
 	void terminate();
-
-	void _start(std::function<void()> setup, std::function<void()> draw);
 }
-
-#ifdef QPR_MAIN
-int main() {
-	qprocessing::_start(setup, draw);
-	return 0;
-}
-#endif

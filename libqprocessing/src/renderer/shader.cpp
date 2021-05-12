@@ -1,7 +1,8 @@
-#include "shader.h"
+#include "shader.hpp"
 
-#include <cstring>
 #include <iostream>
+
+#include "gl.hpp"
 
 namespace {
 	GLuint compile(const char* shaderSource, GLenum type) {
@@ -25,7 +26,10 @@ namespace {
 
 		return id;
 	}
-	GLuint createShaders(const char* vertexShaderSource, const char* fragmentShaderSource) {
+}
+
+namespace qprocessing::renderer {
+	unsigned createShader(const char* vertexShaderSource, const char* fragmentShaderSource) {
 		GLuint program = glCreateProgram();
 
 		GLuint vs = compile(vertexShaderSource, GL_VERTEX_SHADER);
@@ -34,7 +38,6 @@ namespace {
 		glAttachShader(program, vs);
 		glAttachShader(program, fs);
 		glLinkProgram(program);
-		glValidateProgram(program);
 
 #ifdef RELEASE
 		glDetachShader(program, vs);
@@ -44,21 +47,5 @@ namespace {
 #endif
 
 		return program;
-	}
-}
-
-namespace qprocessing::core {
-	Shader::Shader(const char* vertexShaderSource, const char* fragmentShaderSource) {
-		shaderId = createShaders(vertexShaderSource, fragmentShaderSource);
-	}
-	Shader::~Shader() {
-		glDeleteProgram(shaderId);
-	}
-
-	void Shader::bind() {
-		glUseProgram(shaderId);
-	}
-	GLuint Shader::getShaderId() {
-		return shaderId;
 	}
 }

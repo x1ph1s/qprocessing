@@ -1,19 +1,17 @@
-#define QPR_MAIN
 #include "qprocessing.h"
 
-#include <bitset>
 #include <cmath>
 #include <iostream>
 #include <vector>
 
 #include <GLFW/glfw3.h>
 
-#include "renderer.h"
+#include "renderer/renderer.hpp"
 
 #define QPR_EXTRACT_COLOR(color) red(color) / 255.0f, green(color) / 255.0f, blue(color) / 255.0f, alpha(color) / 255.0f
 
 namespace {
-	using namespace qprocessing::core;
+	using namespace qprocessing;
 
 	struct vec3 {
 		float x, y, z;
@@ -26,36 +24,36 @@ namespace {
 	}
 }
 
-namespace qprocessing {
-	void _start(std::function<void()> setup, std::function<void()> draw) {
-		glfwInit();
-		window = glfwCreateWindow(1, 1, "", nullptr, nullptr);
-		glfwMakeContextCurrent(window);
-		glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+int main(){
+	glfwInit();
+	window = glfwCreateWindow(1, 1, "", nullptr, nullptr);
+	glfwMakeContextCurrent(window);
+	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
-		renderer::init(window);
+	renderer::init(window);
 
+	renderer::clear();
+	setup();
+	glfwSwapBuffers(window);
+	renderer::clear();
+	setup();
+
+	while(!glfwWindowShouldClose(window)) {
 		renderer::clear();
-		setup();
+
+		draw();
+
+		renderer::flush();
+
 		glfwSwapBuffers(window);
-		renderer::clear();
-		setup();
-
-		while(!glfwWindowShouldClose(window)) {
-			renderer::clear();
-
-			draw();
-
-			renderer::flush();
-
-			glfwSwapBuffers(window);
-			glfwPollEvents();
-		}
-
-		renderer::shutdown();
-		glfwTerminate();
+		glfwPollEvents();
 	}
 
+	renderer::shutdown();
+	glfwTerminate();
+}
+
+namespace qprocessing {
 	void size(int width, int heigth) {
 		glfwSetWindowSize(window, width, heigth);
 	}
