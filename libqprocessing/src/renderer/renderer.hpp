@@ -33,6 +33,12 @@ namespace qprocessing::renderer {
 
 	void render();
 
+	enum CopyRenderQueueOption {
+		QUEUE_TO_BACKUP,
+		BACKUP_TO_QUEUE
+	};
+	void copyRenderQueue(CopyRenderQueueOption option);
+
 	void init(void* window);
 	void shutdown();
 }

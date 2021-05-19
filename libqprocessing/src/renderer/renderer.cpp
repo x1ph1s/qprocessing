@@ -64,16 +64,30 @@ namespace qprocessing {
 		backgroundCall = std::make_unique<BackgroundCall>(call);
 	}
 
+	void renderer::copyRenderQueue(renderer::CopyRenderQueueOption option) {
+		static std::unique_ptr<BackgroundCall> backgroundCallBackup{nullptr};
+		static std::vector<MeshCall> meshCallsBackup;
+		if(option == CopyRenderQueueOption::QUEUE_TO_BACKUP) {
+			if(backgroundCall) {
+				backgroundCallBackup = std::make_unique<BackgroundCall>(*backgroundCall);
+			}
+			meshCallsBackup = meshCalls;
+		}
+		else if(option == CopyRenderQueueOption::BACKUP_TO_QUEUE) {
+			backgroundCall = std::move(backgroundCallBackup);
+			meshCalls		= std::move(meshCallsBackup);
+		}
+	}
+
 	void renderer::render() {
-		if(backgroundCall){
+		glClear(GL_COLOR_BUFFER_BIT);
+		if(backgroundCall) {
 			glClearColor(backgroundCall->r, backgroundCall->g, backgroundCall->b, backgroundCall->a);
-			glClear(GL_COLOR_BUFFER_BIT);
 		}
 
 		for(auto& i : meshCalls) {
 			batch::add(i.vertices.data(), i.vertices.size(), i.indices.data(), i.indices.size());
 		}
-		meshCalls.clear();
 
 		batch::flush();
 	}

@@ -24,7 +24,7 @@ namespace {
 	}
 }
 
-int main(){
+int main() {
 	glfwInit();
 	window = glfwCreateWindow(1, 1, "", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
@@ -32,9 +32,6 @@ int main(){
 
 	renderer::init(window);
 
-	setup();
-	renderer::render();
-	glfwSwapBuffers(window);
 	setup();
 	renderer::render();
 
@@ -97,7 +94,7 @@ namespace qprocessing {
 		circleIndices.push_back(numPoints);
 		circleIndices.push_back(1);
 
-		renderer::submit(renderer::MeshCall{circleVertices,circleIndices});
+		renderer::submit(renderer::MeshCall{circleVertices, circleIndices});
 	}
 	void line(float x1, float y1, float x2, float y2) {
 		constexpr float thickness = 0.0001;
@@ -116,8 +113,7 @@ namespace qprocessing {
 			renderer::Vertex{
 				x1 + vx, y1 + vy, QPR_EXTRACT_COLOR(currentColor)},
 			renderer::Vertex{
-				x1 - vx, y1 - vy, QPR_EXTRACT_COLOR(currentColor)
-			},
+				x1 - vx, y1 - vy, QPR_EXTRACT_COLOR(currentColor)},
 			renderer::Vertex{
 				x2 + vx, y2 + vy, QPR_EXTRACT_COLOR(currentColor)},
 			renderer::Vertex{
@@ -128,7 +124,7 @@ namespace qprocessing {
 			0, 1, 2,
 			2, 3, 1};
 
-		renderer::submit(renderer::MeshCall{lineVertices,lineIndices});
+		renderer::submit(renderer::MeshCall{lineVertices, lineIndices});
 	}
 	void point(float x, float y) {
 		circle(x, y, 0.005);
@@ -161,7 +157,7 @@ namespace qprocessing {
 			0, 1, 2,
 			2, 3, 1};
 
-		renderer::submit(renderer::MeshCall{rectVertices,rectIndices});
+		renderer::submit(renderer::MeshCall{rectVertices, rectIndices});
 	}
 	void square(float x, float y, float e) {
 		rect(x, y, e, e);

@@ -43,12 +43,6 @@ namespace qprocessing::renderer {
 
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
-
-#ifdef DEBUG
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-		glEnable(GL_DEBUG_OUTPUT);
-		glDebugMessageCallback(_glMessageCallback, nullptr);
-#endif
 	}
 
 	void batch::shutdown() {

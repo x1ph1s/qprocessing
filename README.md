@@ -29,7 +29,7 @@ void setup();
 void draw();
 
 void setup(){
-  // your setup code (it is run twice yet)
+  // your setup code
   size(500, 500); // window size
 }
 void loop(){
