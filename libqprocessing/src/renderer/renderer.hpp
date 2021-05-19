@@ -1,25 +1,37 @@
 #pragma once
 
-#include <cinttypes>
-#include <cstddef>
+#include <vector>
+
+#include "const.hpp"
 
 namespace qprocessing::renderer {
-	struct Vertex {
-		float x = 0;
-		float y = 0;
-		float z = 0;
+	class RenderCall {};
 
-		float r = 1;
-		float g = 1;
-		float b = 1;
-		float a = 1;
+	class MeshCall : public RenderCall {
+		std::vector<Vertex> vertices;
+		std::vector<uint32_t> indices;
+
+	public:
+		MeshCall(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) :
+			vertices{std::move(vertices)}, indices{std::move(indices)} {}
+
+		friend void render();
 	};
 
-	void add(const Vertex* vertices, size_t vertexCount, const uint32_t* indices, uint32_t indexCount);
-	void flush();
+	class BackgroundCall : public RenderCall {
+		float r, g, b, a;
 
-	void clearColor(float r, float g, float b, float a);
-	void clear();
+	public:
+		BackgroundCall(float r, float g, float b, float a) :
+			r{r}, g{g}, b{b}, a{a} {}
+
+		friend void render();
+	};
+
+	void submit(MeshCall call);
+	void submit(BackgroundCall call);
+
+	void render();
 
 	void init(void* window);
 	void shutdown();

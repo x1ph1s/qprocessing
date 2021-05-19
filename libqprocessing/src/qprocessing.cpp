@@ -32,18 +32,15 @@ int main(){
 
 	renderer::init(window);
 
-	renderer::clear();
 	setup();
+	renderer::render();
 	glfwSwapBuffers(window);
-	renderer::clear();
 	setup();
+	renderer::render();
 
 	while(!glfwWindowShouldClose(window)) {
-		renderer::clear();
-
 		draw();
-
-		renderer::flush();
+		renderer::render();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -59,20 +56,16 @@ namespace qprocessing {
 	}
 
 	void background(color c) {
-		renderer::clearColor(QPR_EXTRACT_COLOR(c));
-		renderer::clear();
+		renderer::submit(renderer::BackgroundCall{QPR_EXTRACT_COLOR(c)});
 	}
 	void background(color c, int alpha) {
-		renderer::clearColor(red(c) / 255.0f, green(c) / 255.0f, blue(c) / 255.0f, alpha / 255.0f);
-		renderer::clear();
+		renderer::submit(renderer::BackgroundCall{red(c) / 255.0f, green(c) / 255.0f, blue(c) / 255.0f, alpha / 255.0f});
 	}
 	void background(int gray, int alpha) {
-		renderer::clearColor(gray / 255.0f, gray / 255.0f, gray / 255.0f, alpha / 255.0f);
-		renderer::clear();
+		renderer::submit(renderer::BackgroundCall{gray / 255.0f, gray / 255.0f, gray / 255.0f, alpha / 255.0f});
 	}
 	void background(int v1, int v2, int v3, int a) {
-		renderer::clearColor(v1 / 255.0f, v2 / 255.0f, v3 / 255.0f, a / 255.0f);
-		renderer::clear();
+		renderer::submit(renderer::BackgroundCall{v1 / 255.0f, v2 / 255.0f, v3 / 255.0f, a / 255.0f});
 	}
 
 	void circle(float xPos, float yPos, float r) {
@@ -104,7 +97,7 @@ namespace qprocessing {
 		circleIndices.push_back(numPoints);
 		circleIndices.push_back(1);
 
-		renderer::add(circleVertices.data(), circleVertices.size(), circleIndices.data(), circleIndices.size());
+		renderer::submit(renderer::MeshCall{circleVertices,circleIndices});
 	}
 	void line(float x1, float y1, float x2, float y2) {
 		constexpr float thickness = 0.0001;
@@ -135,7 +128,7 @@ namespace qprocessing {
 			0, 1, 2,
 			2, 3, 1};
 
-		renderer::add(lineVertices.data(), lineVertices.size(), lineIndices.data(), lineIndices.size());
+		renderer::submit(renderer::MeshCall{lineVertices,lineIndices});
 	}
 	void point(float x, float y) {
 		circle(x, y, 0.005);
@@ -168,7 +161,7 @@ namespace qprocessing {
 			0, 1, 2,
 			2, 3, 1};
 
-		renderer::add(rectVertices.data(), rectVertices.size(), rectIndices.data(), rectIndices.size());
+		renderer::submit(renderer::MeshCall{rectVertices,rectIndices});
 	}
 	void square(float x, float y, float e) {
 		rect(x, y, e, e);

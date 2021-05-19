@@ -1,30 +1,17 @@
 #include "renderer.hpp"
 
-#include <array>
-#include <cstring>
+#include <iostream>
+#include <memory>
+#include <vector>
 
+#include "batch.hpp"
 #include "gl.hpp"
 #include "shader.hpp"
 #include "shadercode.hpp"
 
-constexpr size_t maxVertices = 10000;
-constexpr size_t maxIndices  = size_t(maxVertices * 1.5);
-
 namespace {
 	using namespace qprocessing::renderer;
 
-	std::array<Vertex, maxVertices> vertices;
-	Vertex* verticesPtr = vertices.data();
-
-	std::array<uint32_t, maxIndices> indices;
-	uint32_t* indicesPtr = indices.data();
-
-	uint32_t currentIndex = 0;
-	uint32_t numIndices	 = 0;
-
-	unsigned ibo;
-	unsigned vbo;
-	unsigned vao;
 	unsigned shader;
 
 #ifdef DEBUG
@@ -32,11 +19,14 @@ namespace {
 		std::cout << message << "\n";
 	}
 #endif
+
+	std::vector<MeshCall> meshCalls;
+	std::unique_ptr<BackgroundCall> backgroundCall{nullptr};
 }
+
 namespace qprocessing {
 	void renderer::init(void* window) {
 		GLenum err = glewInit();
-
 #ifdef DEBUG
 		if(err != GLEW_OK) {
 			std::cerr << "Error with glew: " << glewGetErrorString(err) << "\n";
@@ -44,79 +34,47 @@ namespace qprocessing {
 		}
 #endif
 
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
-
-		glGenBuffers(1, &ibo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, maxIndices * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
-
-		glGenBuffers(1, &vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, maxVertices * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
-
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
-
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
-
 #ifdef DEBUG
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(_glMessageCallback, nullptr);
 #endif
 
-		glClearColor(0.1, 0.1, 0.1, 1);
+		glClearColor(0, 0, 0, 1);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		shader = createShader(vertexShaderSource, fragmentShaderSource);
 		glUseProgram(shader);
+
+		batch::init(window);
 	}
 
 	void renderer::shutdown() {
-		glDeleteVertexArrays(1, &vao);
-		glDeleteBuffers(1, &vbo);
-		glDeleteBuffers(1, &ibo);
 		glDeleteProgram(shader);
+		batch::shutdown();
 	}
 
-	void renderer::add(const Vertex* vertices_, size_t vertexCount, const uint32_t* indices_, uint32_t indexCount) {
-		numIndices += indexCount;
-		if(numIndices > maxIndices || (currentIndex + vertexCount) > maxVertices) {
-			numIndices -= indexCount;
-			flush();
-			numIndices += indexCount;
+	void renderer::submit(MeshCall call) {
+		meshCalls.push_back(call);
+	}
+	void renderer::submit(BackgroundCall call) {
+		meshCalls.clear();
+		backgroundCall = std::make_unique<BackgroundCall>(call);
+	}
+
+	void renderer::render() {
+		if(backgroundCall){
+			glClearColor(backgroundCall->r, backgroundCall->g, backgroundCall->b, backgroundCall->a);
+			glClear(GL_COLOR_BUFFER_BIT);
 		}
 
-		std::memcpy(verticesPtr, vertices_, vertexCount * sizeof(Vertex));
-		verticesPtr += vertexCount;
-
-		std::memcpy(indicesPtr, indices_, indexCount * sizeof(uint32_t));
-		for(size_t i = 0; i < indexCount; ++i) {
-			*(indicesPtr + i) += currentIndex;
+		for(auto& i : meshCalls) {
+			batch::add(i.vertices.data(), i.vertices.size(), i.indices.data(), i.indices.size());
 		}
+		meshCalls.clear();
 
-		indicesPtr += indexCount;
-		currentIndex += vertexCount;
-	}
-	void renderer::flush() {
-		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, numIndices * sizeof(uint32_t), indices.data());
-		glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), vertices.data());
-		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, nullptr);
-
-		currentIndex = 0;
-		numIndices	 = 0;
-		indicesPtr	 = indices.data();
-		verticesPtr	 = vertices.data();
-	}
-
-	void renderer::clear() {
-		glClear(GL_COLOR_BUFFER_BIT);
-	}
-	void renderer::clearColor(float r, float g, float b, float a) {
-		glClearColor(r, g, b, a);
+		batch::flush();
 	}
 }
