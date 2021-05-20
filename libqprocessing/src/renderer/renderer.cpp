@@ -65,10 +65,10 @@ namespace qprocessing {
 	}
 
 	void renderer::render() {
-		glClear(GL_COLOR_BUFFER_BIT);
 		if(backgroundCall) {
 			glClearColor(backgroundCall->r, backgroundCall->g, backgroundCall->b, backgroundCall->a);
 		}
+		glClear(GL_COLOR_BUFFER_BIT);
 
 		for(auto& i : meshCalls) {
 			batch::add(i.vertices.data(), i.vertices.size(), i.indices.data(), i.indices.size());
